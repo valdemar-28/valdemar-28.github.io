@@ -1,45 +1,309 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    <style>
-        .image-gallery {
-            display: flex;               /* Activates Flexbox layout layout */
-            justify-content: center;     /* Centers images horizontally (use 'space-between' for equal edges) */
-            align-items: center;         /* Vertically aligns images if they have different heights */
-            gap: 20px;                   /* Creates clean, uniform spacing between the image links */
-            flex-wrap: wrap;             /* Forces links to wrap nicely onto new lines on mobile devices */
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07050a">
+  <meta name="description" content="Minimal space background with social links.">
+
+  <title>Valdemar</title>
+
+  <style>
+    :root {
+      --bg: #07050a;
+      --text: #cfc9b8;
+      --accent: #f4c300;
+      --star-rgb: 200, 192, 170;
+
+      --star-density: 8500; /* smaller = more stars */
+      --star-speed: 0.05;  /* larger = faster movement */
+      --glow-opacity: 0.035;
+      --vignette-opacity: 0.78;
+
+      --link-size: 14px;
+      --link-spacing: 2px;
+      --link-gap: 28px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100svh;
+      overflow: hidden;
+      color: var(--text);
+      font-family: monospace;
+    }
+
+    /* ---------------------------------------------------------
+       BACKGROUND
+       --------------------------------------------------------- */
+    .background {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    #stars {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .background::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(
+          ellipse 60% 45% at 50% 45%,
+          rgba(244, 195, 0, var(--glow-opacity)),
+          transparent 70%
+        );
+    }
+
+    .background::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(
+          ellipse at center,
+          transparent 30%,
+          rgba(0, 0, 0, var(--vignette-opacity)) 100%
+        );
+    }
+
+    /* ---------------------------------------------------------
+       CONTENT
+       --------------------------------------------------------- */
+    main {
+      position: relative;
+      z-index: 1;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: var(--link-gap);
+      text-align: center;
+    }
+
+    .links a {
+      color: var(--text);
+      font-size: var(--link-size);
+      letter-spacing: var(--link-spacing);
+      line-height: 1;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition:
+        color 180ms ease,
+        text-shadow 180ms ease,
+        opacity 180ms ease;
+    }
+
+    .links a {
+  color: #eee;
+
+  text-shadow:
+    0 0 2px #fff,
+    0 0 7px rgba(255, 255, 255, 0.7),
+    0 0 10px rgba(255, 255, 255, 0.4),
+    0 0 12.5px rgba(255, 255, 255, 0.2);
+    }
+
+    .links a::before {
+      content: "·";
+      margin-right: 8px;
+      color: rgba(244, 195, 0, 0.35);
+      transition: color 180ms ease;
+    }
+
+    .links a:hover,
+    .links a:focus-visible {
+      color: var(--accent);
+      text-shadow: 0 0 12px rgba(244, 195, 0, 0.3);
+    }
+
+    .links a:hover::before,
+    .links a:focus-visible::before {
+      color: var(--accent);
+    }
+
+    .links a:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 8px;
+    }
+
+    @media (max-width: 560px) {
+      .links {
+        flex-direction: column;
+        gap: 22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .links a {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background" aria-hidden="true">
+    <canvas id="stars"></canvas>
+  </div>
+
+  <main>
+    <nav class="links" aria-label="Social and music links">
+      <a href="https://www.instagram.com/iamthevaldemar/"
+         target="_blank"
+         rel="noopener noreferrer">Instagram</a>
+
+      <a href="https://discord.com/users/1170058017262276668"
+         target="_blank"
+         rel="noopener noreferrer">Discord</a>
+
+      <a href="https://soundcloud.com/iamthevaldemar"
+         target="_blank"
+         rel="noopener noreferrer">SoundCloud</a>
+
+      <a href="https://www.tiktok.com/@iamthevaldemar"
+         target="_blank"
+         rel="noopener noreferrer">TikTok</a>
+
+      <a href="https://iamthevaldemar.bandcamp.com/"
+         target="_blank"
+         rel="noopener noreferrer">Bandcamp</a>
+    </nav>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("stars");
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      if (!ctx) return;
+
+      const root = document.documentElement;
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      );
+
+      const settings = {
+        density: parseFloat(
+          getComputedStyle(root).getPropertyValue("--star-density")
+        ),
+        speed: parseFloat(
+          getComputedStyle(root).getPropertyValue("--star-speed")
+        ),
+        color: getComputedStyle(root)
+          .getPropertyValue("--star-rgb")
+          .trim()
+      };
+
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+      let stars = [];
+      let animationFrame = 0;
+
+      function createStars() {
+        const count = Math.max(
+          40,
+          Math.floor((width * height) / settings.density)
+        );
+
+        stars = Array.from({ length: count }, () => ({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() < 0.94 ? 1 : 2,
+          alpha: 0.12 + Math.random() * 0.52,
+          speed: settings.speed * (0.55 + Math.random() * 0.9),
+          phase: Math.random() * Math.PI * 2,
+          twinkle: 0.001 + Math.random() * 0.004
+        }));
+      }
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        createStars();
+      }
+
+      function render(time) {
+        ctx.clearRect(0, 0, width, height);
+
+        for (const star of stars) {
+          const shimmer = reducedMotion.matches
+            ? 1
+            : 0.72 + Math.sin(time * star.twinkle + star.phase) * 0.28;
+
+          ctx.fillStyle =
+            `rgba(${settings.color}, ${star.alpha * shimmer})`;
+
+          ctx.fillRect(
+            Math.floor(star.x),
+            Math.floor(star.y),
+            star.size,
+            star.size
+          );
+
+          if (!reducedMotion.matches) {
+            star.y += star.speed;
+
+            if (star.y > height) {
+              star.y = -star.size;
+              star.x = Math.random() * width;
+            }
+          }
         }
 
-        /* Image sizing configuration */
-        .image-gallery a img {
-            width: 200px;                /* Controls explicit width */
-            height: 200px;               /* Controls explicit height */
-            object-fit: cover;           /* Ensures photos do not warp or stretch out of aspect ratio */
-        }
-    </style>
-</head>
-<body lang="en">
-    <h1>Hello, this is my website</h1>
-    <p>I am an artist, follow me</p>
-    <div class="image-gallery">
-        <a href="https://www.instagram.com/iamthevaldemar/">
-            <img src="vlogo_ig.png" alt="Description">
-        </a>
-        <a href="https://discord.com/users/1170058017262276668">
-            <img src="vlogo_ds.png" alt="Description">
-        </a>
-        <a href="https://soundcloud.com/iamthevaldemar">
-            <img src="vlogo_sc.png" alt="Description">
-        </a>
-        <a href="https://www.tiktok.com/@iamthevaldemar">
-            <img src="vlogo_tt.png" alt="Description">
-        </a>
-        <a href="https://iamthevaldemar.bandcamp.com/">
-            <img src="vlogo_bc.png" alt="Description">
-        </a>
-    </div>
+        animationFrame = requestAnimationFrame(render);
+      }
+
+      function start() {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = requestAnimationFrame(render);
+      }
+
+      const resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(document.documentElement);
+
+      resize();
+      start();
+    })();
+  </script>
 </body>
 </html>
