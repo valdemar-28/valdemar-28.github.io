@@ -1,6 +1,6 @@
 # valdemar-28.github.io
 
-Personal landing page for VALDEMAR.
+Personal landing page.
 
 Live site: https://valdemar-28.github.io/
 
